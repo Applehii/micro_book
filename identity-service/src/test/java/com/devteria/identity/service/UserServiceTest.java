@@ -14,12 +14,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.TestPropertySource;
 
 import com.devteria.identity.dto.request.UserCreationRequest;
 import com.devteria.identity.dto.response.UserResponse;
-import com.devteria.identity.entity.User;
+import com.devteria.identity.entity.Users;
 import com.devteria.identity.exception.AppException;
 import com.devteria.identity.repository.UserRepository;
 
@@ -34,7 +35,7 @@ public class UserServiceTest {
 
     private UserCreationRequest request;
     private UserResponse userResponse;
-    private User user;
+    private Users user;
     private LocalDate dob;
 
     @BeforeEach
@@ -57,7 +58,7 @@ public class UserServiceTest {
                 .dob(dob)
                 .build();
 
-        user = User.builder()
+        user = Users.builder()
                 .id("cf0600f538b3")
                 .username("john")
                 .firstName("John")

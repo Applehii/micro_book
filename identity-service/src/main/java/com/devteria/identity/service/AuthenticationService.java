@@ -20,7 +20,7 @@ import com.devteria.identity.dto.request.RefreshRequest;
 import com.devteria.identity.dto.response.AuthenticationResponse;
 import com.devteria.identity.dto.response.IntrospectResponse;
 import com.devteria.identity.entity.InvalidatedToken;
-import com.devteria.identity.entity.User;
+import com.devteria.identity.entity.Users;
 import com.devteria.identity.exception.AppException;
 import com.devteria.identity.exception.ErrorCode;
 import com.devteria.identity.repository.InvalidatedTokenRepository;
@@ -116,7 +116,7 @@ public class AuthenticationService {
                 .build();
     }
 
-    private TokenInfo generateToken(User user) {
+    private TokenInfo generateToken(Users user) {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
 
         Date issueTime = new Date();
@@ -164,7 +164,7 @@ public class AuthenticationService {
         return signedJWT;
     }
 
-    private String buildScope(User user) {
+    private String buildScope(Users user) {
         StringJoiner stringJoiner = new StringJoiner(" ");
 
         if (!CollectionUtils.isEmpty(user.getRoles()))

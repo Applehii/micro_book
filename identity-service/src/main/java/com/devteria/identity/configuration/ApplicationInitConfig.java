@@ -10,7 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.devteria.identity.constant.PredefinedRole;
 import com.devteria.identity.entity.Role;
-import com.devteria.identity.entity.User;
+import com.devteria.identity.entity.Users;
 import com.devteria.identity.repository.RoleRepository;
 import com.devteria.identity.repository.UserRepository;
 
@@ -38,7 +38,7 @@ public class ApplicationInitConfig {
     @ConditionalOnProperty(
             prefix = "spring",
             value = "datasource.driverClassName",
-            havingValue = "com.mysql.cj.jdbc.Driver")
+            havingValue = "org.postgresql.Driver")
     ApplicationRunner applicationRunner(UserRepository userRepository, RoleRepository roleRepository) {
         log.info("Initializing application.....");
         return args -> {
@@ -56,7 +56,7 @@ public class ApplicationInitConfig {
                 var roles = new HashSet<Role>();
                 roles.add(adminRole);
 
-                User user = User.builder()
+                Users user = Users.builder()
                         .username(ADMIN_USER_NAME)
                         .password(passwordEncoder.encode(ADMIN_PASSWORD))
                         .roles(roles)

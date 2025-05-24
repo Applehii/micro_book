@@ -3,6 +3,9 @@ package com.devteria.identity.service;
 import java.util.HashSet;
 import java.util.List;
 
+import com.devteria.identity.entity.Users;
+import com.devteria.identity.mapper.ProfileMapper;
+import com.devteria.identity.repository.httpclient.ProfileClient;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -13,7 +16,7 @@ import com.devteria.identity.dto.request.UserCreationRequest;
 import com.devteria.identity.dto.request.UserUpdateRequest;
 import com.devteria.identity.dto.response.UserResponse;
 import com.devteria.identity.entity.Role;
-import com.devteria.identity.entity.User;
+import com.devteria.identity.entity.Users;
 import com.devteria.identity.exception.AppException;
 import com.devteria.identity.exception.ErrorCode;
 import com.devteria.identity.mapper.UserMapper;
@@ -34,33 +37,38 @@ public class UserService {
     RoleRepository roleRepository;
     UserMapper userMapper;
     PasswordEncoder passwordEncoder;
+    ProfileClient profileClient;
+    ProfileMapper profileMapper;
 
     public UserResponse createUser(UserCreationRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) throw new AppException(ErrorCode.USER_EXISTED);
 
-        User user = userMapper.toUser(request);
+        Users user = userMapper.toUser(request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
         HashSet<Role> roles = new HashSet<>();
         roleRepository.findById(PredefinedRole.USER_ROLE).ifPresent(roles::add);
 
         user.setRoles(roles);
+        user = userRepository.save(user);
 
-        return userMapper.toUserResponse(userRepository.save(user));
+        profileClient.createProfile(profileMapper.toProfileCreationRequest(user));
+
+        return userMapper.toUserResponse(user);
     }
 
     public UserResponse getMyInfo() {
         var context = SecurityContextHolder.getContext();
         String name = context.getAuthentication().getName();
 
-        User user = userRepository.findByUsername(name).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        Users user = userRepository.findByUsername(name).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         return userMapper.toUserResponse(user);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     public UserResponse updateUser(String userId, UserUpdateRequest request) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        Users user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         userMapper.updateUser(user, request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
