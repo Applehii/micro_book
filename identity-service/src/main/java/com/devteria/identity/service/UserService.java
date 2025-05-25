@@ -52,7 +52,7 @@ public class UserService {
         user.setRoles(roles);
         user = userRepository.save(user);
 
-        profileClient.createProfile(profileMapper.toProfileCreationRequest(user));
+        profileClient.createProfile(profileMapper.toProfileCreationRequest(user, request));
 
         return userMapper.toUserResponse(user);
     }
